@@ -18,15 +18,15 @@ By integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node)
     + [Sign in to Azure](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-node?pivots=nodejs-model-v4#sign-in-to-azure)
     + [Create a function app](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-node?pivots=nodejs-model-v4#create-the-function-app-in-azure)
 + [Sign in to dashboard.openfort.xyz](http://dashboard.openfort.xyz) and create a new project
-+ Download or clone the [sample project](https://github.com/dpradell-dev/openfort-playfab-unity-sample): 
-    + Open [unity-client](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/unity-client) with Unity
-    + Open [azure-backend](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/azure-backend) with VS Code
-+ Watch the [video tutorial](https://www.youtube.com/watch?v=dbLpA2YB6vU) on configuring *Google Play Games for Unity* and apply it to [unity-client](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/unity-client). Note that:
++ Download or clone the [sample project](https://github.com/openfort-xyz/openfort-playfab-unity-sample): 
+    + Open [unity-client](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/unity-client) with Unity
+    + Open [azure-backend](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/azure-backend) with VS Code
++ Watch the [video tutorial](https://www.youtube.com/watch?v=dbLpA2YB6vU) on configuring *Google Play Games for Unity* and apply it to [unity-client](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/unity-client). Note that:
     + You need a [Google Play Developer account](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en)
     + You need a [Google Cloud project](https://developers.google.com/workspace/guides/create-project)
-    + Google Play Games SDK is already imported to [unity-client](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/unity-client)
+    + Google Play Games SDK is already imported to [unity-client](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/unity-client)
     + Skip the instructions related to ***Unity Gaming Services***
-    + We provide a [Keystore](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/unity-client/Keystore//TODOlink) (password: `android`). You can use it instead of [creating a new one](https://youtu.be/dbLpA2YB6vU?t=273)
+    + We provide a [Keystore](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/unity-client/Keystore//TODOlink) (password: `android`). You can use it instead of [creating a new one](https://youtu.be/dbLpA2YB6vU?t=273)
     + Skip the step to [create this script](https://youtu.be/dbLpA2YB6vU?t=1089)
 
 ## Set up Openfort
@@ -46,7 +46,7 @@ By integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node)
    <img src="docs-img/image-2.png" width="500">
 
 ## Deploy Azure Backend
-Open [azure-backend](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/azure-backend) with VS Code and sign in to Azure:
+Open [azure-backend](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/azure-backend) with VS Code and sign in to Azure:
 
 ![Azure backend image](docs-img/image-4.png)
 
@@ -180,7 +180,7 @@ This Unity sample project is already equipped with:
 + [PlayFab Unity SDK](https://github.com/PlayFab/UnitySDK)
 + [Google Play Games Unity Plugin (v11.01)](https://github.com/playgameservices/play-games-plugin-for-unity)
 
-To begin, open [unity-client](https://github.com/dpradell-dev/openfort-playfab-unity-sample/tree/main/unity-client) with Unity:
+To begin, open [unity-client](https://github.com/openfort-xyz/openfort-playfab-unity-sample/tree/main/unity-client) with Unity:
 
 1. #### Configure PlayFab SDK
     - Navigate to the ***Project*** tab.
