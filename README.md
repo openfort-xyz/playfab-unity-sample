@@ -229,4 +229,12 @@ Upon building and running the game on an Android device, the registration/login 
 
 Upon completing the above steps, your Unity game will be fully integrated with Openfort and PlayFab. Always remember to test every feature before deploying to guarantee a flawless player experience.
 
-For a deeper understanding of the underlying processes, stay tuned for the [upcoming tutorial video](). For assistance or queries, consider visiting our contact or support page.
+For a deeper understanding of the underlying processes, check out the [tutorial video](https://youtu.be/PHNodBmbEfA). 
+
+## Get support
+If you found a bug or want to suggest a new [feature/use case/sample], please [file an issue](../../issues).
+
+If you have questions, comments, or need help with code, we're here to help:
+- on Twitter at https://twitter.com/openfortxyz
+- on Discord: https://discord.com/invite/t7x7hwkJF4
+- by email: support+youtube@openfort.xyz
