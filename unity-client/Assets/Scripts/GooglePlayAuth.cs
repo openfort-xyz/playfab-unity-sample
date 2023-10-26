@@ -28,6 +28,7 @@ public class GooglePlayAuth : MonoBehaviour
 
     public void Authenticate()
     {
+#if UNITY_ANDROID
         PlayGamesPlatform.Activate();
         
         PlayGamesPlatform.Instance.Authenticate(success =>
@@ -48,10 +49,13 @@ public class GooglePlayAuth : MonoBehaviour
                 OnGooglePlayAuthError?.Invoke();
             }
         });
+#else
+        Debug.Log("Google Play Games SDK only works on Android devices. Please build your app to an Android device.");
+#endif
     }
 
     //TODO in another script
-    void Update() 
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
