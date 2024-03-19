@@ -50,8 +50,10 @@ const httpTrigger: AzureFunction = async function (
     context.res = {
       status: 200,
       body: JSON.stringify({
+        //TODO
         minted: transactionIntent.response?.status ? true : false,
-        id: transactionIntent.id
+        id: transactionIntent.id,
+        userOpHash: transactionIntent.userOperationHash
       }),
     };
 

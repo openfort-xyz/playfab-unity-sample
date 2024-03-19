@@ -18,8 +18,7 @@ const openfort = new Openfort(OF_API_KEY);
 function validateRequestBody(req: HttpRequest): void {
     if (!req.body || 
         !req.body.CallerEntityProfile.Lineage.MasterPlayerAccountId ||
-        !req.body.FunctionArgument.playerId ||
-        !req.body.FunctionArgument.receiverAddress) {
+        !req.body.FunctionArgument.accessToken) {
         throw new Error("Invalid request body: Missing required parameters.");
     }
 }
@@ -34,10 +33,15 @@ const httpTrigger: AzureFunction = async function (
         validateRequestBody(req);
         context.log("Request body validated.");
 
-        const { playerId, receiverAddress } = req.body.FunctionArgument;
+        const accessToken = req.body.FunctionArgument.accessToken;
 
-        context.log(`Creating transaction intent for player ID: ${playerId} and receiver address: ${receiverAddress}`);
-        const transactionIntent = await createTransactionIntent(playerId, receiverAddress);
+        const player = await openfort.iam.verifyAuthToken(accessToken)
+        if (!player) {
+            throw new Error("Could not get Openfort player with access token.");
+        }
+
+        context.log(`Creating transaction intent...`);
+        const transactionIntent = await createTransactionIntent(player.playerId);
 
         context.res = buildSuccessResponse(transactionIntent.id);
         context.log("Function execution successful and response sent.");
@@ -50,19 +54,18 @@ const httpTrigger: AzureFunction = async function (
     }
 };
 
-async function createTransactionIntent(playerId: string, receiverAddress: string): Promise<any> {
+async function createTransactionIntent(playerId: string): Promise<any> {
     const interaction: Interaction = {
         contract: OF_NFT_CONTRACT,
         functionName: "mint",
-        functionArgs: [receiverAddress]
+        functionArgs: [playerId]
     };
 
     const transactionIntentRequest: CreateTransactionIntentRequest = {
         player: playerId,
+        policy: OF_SPONSOR_POLICY,
         chainId: CHAIN_ID,
-        optimistic: false,
-        interactions: [interaction],
-        policy: OF_SPONSOR_POLICY
+        interactions: [interaction]
     };
 
     const transactionIntent = await openfort.transactionIntents.create(transactionIntentRequest);

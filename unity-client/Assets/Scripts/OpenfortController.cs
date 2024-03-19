@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Openfort;
 using Openfort.Model;
@@ -31,6 +33,7 @@ public class OpenfortController : MonoBehaviour
     {
         public bool minted;
         public string id;
+        public string userOpHash;
     }
     
     [System.Serializable]
@@ -152,9 +155,9 @@ public class OpenfortController : MonoBehaviour
 
     public void MintNFT()
     {
-        if (string.IsNullOrEmpty(_playerId) || string.IsNullOrEmpty(_playerWalletAddress))
+        if (string.IsNullOrEmpty(oauthAccessToken))
         {
-            Debug.LogError("Player ID or Player Wallet Address is null or empty.");
+            Debug.LogError("Player ID is null or empty.");
             return;
         }
 
@@ -165,8 +168,7 @@ public class OpenfortController : MonoBehaviour
             FunctionName = "MintNFT",
             FunctionParameter = new
             {
-                playerId = _playerId,
-                receiverAddress = _playerWalletAddress
+                accessToken = oauthAccessToken
             },
             GeneratePlayStreamEvent = true
         };
@@ -264,20 +266,48 @@ public class OpenfortController : MonoBehaviour
         GetTransactionIntent(responseObject.id);
     }
 
-    private void OnGetTransactionIntentSuccess(ExecuteFunctionResult result)
+    private async void OnGetTransactionIntentSuccess(ExecuteFunctionResult result)
     {
         var responseObject = JsonUtility.FromJson<GetTransactionIntentResponse>(result.FunctionResult.ToString());
         if (responseObject.minted)
         {
-            statusText.text = "Transaction confirmed. Minted = true";
+            statusText.text = "Transaction signed. Fetching inventory...";
             Debug.Log("Minted is true");
+
+            UniTask.Delay(2000);
             GetPlayerNftInventory(_playerId);
         }
         else
         {
-            statusText.text = "Transaction pending. Minted = false";
             Debug.Log("Minted is false");
-            GetTransactionIntent(responseObject.id);
+
+            var txId = responseObject.id;
+            var userOpHash = responseObject.userOpHash;
+
+            if (string.IsNullOrEmpty(userOpHash))
+            {
+                Debug.LogWarning("userOpHash is null.");
+                GetTransactionIntent(responseObject.id);
+                return;
+            }
+            
+            Debug.Log($"userOpHash: {userOpHash}");
+
+            try
+            {
+                var intentResponse = await mOpenfort.SendSignatureTransactionIntentRequest(txId, userOpHash);
+                var transactionHash = intentResponse.Response.TransactionHash;
+
+                Debug.Log($"Transaction: {transactionHash} signed!");
+                statusText.text = "Transaction signed. Fetching inventory...";
+                
+                GetTransactionIntent(txId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 
@@ -288,12 +318,20 @@ public class OpenfortController : MonoBehaviour
         var json = result.FunctionResult.ToString();
         List<NftItem> nftItems = JsonConvert.DeserializeObject<List<NftItem>>(json);
 
-        foreach (var nft in nftItems)
+        if (nftItems.Count == 0)
         {
-            //TODO instantiate into scroll grid layout in case more than 1 nft.
-            var instantiatedNft = Instantiate(nftPrefab, uiCanvas.transform);
-            instantiatedNft.Setup(nft.assetType, nft.tokenId.ToString());
-            Debug.Log(nft);
+            statusText.text = "NFT inventory is empty.";
+            mintPanel.SetActive(true);
+        }
+        else
+        {
+            foreach (var nft in nftItems)
+            {
+                //TODO instantiate into scroll grid layout in case more than 1 nft.
+                var instantiatedNft = Instantiate(nftPrefab, uiCanvas.transform);
+                instantiatedNft.Setup(nft.assetType, nft.tokenId.ToString());
+                Debug.Log(nft);
+            }   
         }
     }
 
