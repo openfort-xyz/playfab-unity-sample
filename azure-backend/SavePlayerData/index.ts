@@ -5,7 +5,6 @@ import { PlayFabServer } from "playfab-sdk"; // Import PlayFab Server SDK
 const OF_API_KEY = process.env.OF_API_KEY;
 const PLAYFAB_SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 const PLAYFAB_TITLE_ID = process.env.PLAYFAB_TITLE_ID;
-const CHAIN_ID = 80001; // Mumbai
 
 if (!OF_API_KEY || !PLAYFAB_SECRET_KEY || !PLAYFAB_TITLE_ID) {
     throw new Error("Required environment variables missing: Ensure OF_API_KEY, PLAYFAB_SECRET_KEY, and PLAYFAB_TITLE_ID are set.");
@@ -17,7 +16,9 @@ PlayFabServer.settings.developerSecretKey = PLAYFAB_SECRET_KEY;
 const openfort = new Openfort(OF_API_KEY);
 
 function validateRequestBody(req: HttpRequest): void {
-    if (!req.body || !req.body.CallerEntityProfile.Lineage.MasterPlayerAccountId) {
+    if (!req.body
+        || !req.body.CallerEntityProfile.Lineage.MasterPlayerAccountId
+        || !req.body.FunctionArgument.accessToken) {
         throw new Error("Invalid request body: Missing required parameters.");
     }
 }
@@ -31,19 +32,22 @@ const httpTrigger: AzureFunction = async function (
     try {
         validateRequestBody(req);
         const masterPlayerAccountId = req.body.CallerEntityProfile.Lineage.MasterPlayerAccountId;
+        const accessToken = req.body.FunctionArgument.accessToken;
 
-        context.log("Creating player in Openfort...");
-        const OFplayer = await createOpenfortPlayer(masterPlayerAccountId);
+        const OFplayer = await openfort.iam.verifyAuthToken(accessToken)
+        if (!OFplayer) {
+            throw new Error("Could not get Openfort player with access token.");
+        }
 
-        context.log(`Player with ID ${OFplayer.id} created. Proceeding to create account in Openfort...`);
-        const OFaccount = await createOpenfortAccount(OFplayer.id);
+        context.log(`Player with ID: ${OFplayer.playerId}`);
+        const OFaccount = await getPlayerAccount(OFplayer.playerId);
 
         context.log(`Account with address ${OFaccount.address} created.`);
         
         // Adding data to PlayFab UserReadOnlyData
-        await addDataToPlayFab(masterPlayerAccountId, OFplayer.id, OFaccount.address);
+        await addDataToPlayFab(masterPlayerAccountId, OFplayer.playerId, OFaccount.address);
 
-        context.res = buildSuccessResponse(OFplayer.id, OFaccount.address);
+        context.res = buildSuccessResponse(OFplayer.playerId, OFaccount.address);
         context.log("Function execution successful and response sent.");
     } catch (error) {
         context.log("An error occurred:", error);
@@ -74,25 +78,17 @@ async function addDataToPlayFab(masterPlayerAccountId: string, OFplayerId: strin
     });
 }
 
-async function createOpenfortPlayer(masterPlayerAccountId: string) {
-    const OFplayer = await openfort.players.create({ name: masterPlayerAccountId });
-  
-    if (!OFplayer) {
-        throw new Error("Failed to create Openfort player.");
-    }
-    return OFplayer;
-}
-
-async function createOpenfortAccount(playerId: string) {
-    const OFaccount = await openfort.accounts.create({
+async function getPlayerAccount(playerId: string) {
+    const accounts = await openfort.accounts.list({
         player: playerId,
-        chainId: CHAIN_ID,
+        limit: 1
     });
 
-    if (!OFaccount) {
-        throw new Error("Failed to create Openfort account.");
+    if (!accounts) {
+        throw new Error("Failed to get Openfort player accounts.");
     }
-    return OFaccount;
+
+    return accounts.data[0];
 }
 
 function buildSuccessResponse(OFplayerId: string, OFaccountAddress: string) {

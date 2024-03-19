@@ -14,7 +14,7 @@ using EntityKey = PlayFab.CloudScriptModels.EntityKey;
 public class OpenfortController : MonoBehaviour
 {
     [System.Serializable]
-    public class CreatePlayerResponse
+    public class SavePlayerDataResponse
     {
         public string playerId;
         public string playerWalletAddress;
@@ -49,7 +49,7 @@ public class OpenfortController : MonoBehaviour
         public long lastTransferredAt;
     }
 
-    public UnityEvent OnCreatePlayerErrorEvent;
+    public UnityEvent savePlayerDataErrorEvent;
     public GameObject uiCanvas;
     public GameObject mintPanel;
     public NftPrefab nftPrefab;
@@ -60,7 +60,7 @@ public class OpenfortController : MonoBehaviour
     
     public static OpenfortController Instance { get; private set; }
     
-    private const string PublishableKey = "pk_test_c7e20e6a-7028-5dab-b081-5f39be019260";
+    private const string PublishableKey = "pk_test_4eb92d75-d304-5930-b55a-8515ea84fe0e";
     private OpenfortSDK mOpenfort;
 
     [HideInInspector] public string oauthAccessToken;
@@ -85,7 +85,8 @@ public class OpenfortController : MonoBehaviour
         mOpenfort = new OpenfortSDK(PublishableKey); 
         oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken);
         Debug.Log("Access Token: " + oauthAccessToken);
-
+        
+        
         try
         {
             mOpenfort.ConfigureEmbeddedSigner(80001);
@@ -94,10 +95,35 @@ public class OpenfortController : MonoBehaviour
         {
             await mOpenfort.ConfigureEmbeddedRecovery(new PasswordRecovery("secret"));
         }
+        
+        SavePlayerData();
     }
 
     #region AZURE_FUNCTION_CALLERS
 
+    private void SavePlayerData()
+    {
+        if (string.IsNullOrEmpty(oauthAccessToken))
+        {
+            Debug.LogError("OAuth access token is null or empty.");
+            return;
+        }
+
+        statusText.text = "Saving player data...";
+
+        var request = new ExecuteFunctionRequest
+        {
+            FunctionName = "SavePlayerData",
+            FunctionParameter = new
+            {
+                accessToken = oauthAccessToken,
+            },
+            GeneratePlayStreamEvent = true
+        };
+
+        PlayFabCloudScriptAPI.ExecuteFunction(request, OnSavePlayerDataSuccess, OnSavePlayerDataError);
+    }
+    
     public void PlayFabAuth_OnLoginSuccess_Handler(LoginResult loginResult)
     {
         var request = new GetUserDataRequest();
@@ -120,7 +146,7 @@ public class OpenfortController : MonoBehaviour
         }, error =>
         {
             statusText.text = "Login error. Please retry.";
-            OnCreatePlayerErrorEvent?.Invoke();
+            savePlayerDataErrorEvent?.Invoke();
         });
     }
 
@@ -207,18 +233,16 @@ public class OpenfortController : MonoBehaviour
     #endregion
 
     #region SUCCESS_CALLBACK_HANDLERS
-
-    //TODO
-    private void OnCreatePlayerSuccess(ExecuteFunctionResult result)
+    private void OnSavePlayerDataSuccess(ExecuteFunctionResult result)
     {
-        statusText.text = "Player created successfully!";
+        statusText.text = "Player data saved!";
 
         string json = result.FunctionResult.ToString();
-        CreatePlayerResponse response = JsonUtility.FromJson<CreatePlayerResponse>(json);
+        SavePlayerDataResponse dataResponse = JsonUtility.FromJson<SavePlayerDataResponse>(json);
 
-        Debug.Log($"Player ID: {response.playerId}, Player Wallet Address: {response.playerWalletAddress}");
-        _playerId = response.playerId;
-        _playerWalletAddress = response.playerWalletAddress;
+        Debug.Log($"Player ID: {dataResponse.playerId}, Player Wallet Address: {dataResponse.playerWalletAddress}");
+        _playerId = dataResponse.playerId;
+        _playerWalletAddress = dataResponse.playerWalletAddress;
 
         mintPanel.SetActive(true);
     }
@@ -277,12 +301,11 @@ public class OpenfortController : MonoBehaviour
 
     #region ERROR_CALLBACK_HANDLERS
 
-    //TODO
-    private void OnCreatePlayerError(PlayFabError error)
+    private void OnSavePlayerDataError(PlayFabError error)
     {
-        statusText.text = "Error creating player!";
-        Debug.LogError($"Failed to call CreateOpenfortPlayer: {error.GenerateErrorReport()}");
-        OnCreatePlayerErrorEvent?.Invoke();
+        statusText.text = "Error saving player data.";
+        Debug.LogError($"Failed to save player data: {error.GenerateErrorReport()}");
+        savePlayerDataErrorEvent?.Invoke();
     }
 
     private void OnMintNftError(PlayFabError error)

@@ -930,7 +930,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 484f40959b84f2047800ba694e780ed5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnCreatePlayerErrorEvent:
+  savePlayerDataErrorEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1889814252}
