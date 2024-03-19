@@ -72,31 +72,13 @@ public class OpenfortController : MonoBehaviour
             }
             else
             {
-                CreatePlayer();
+                //TODO! CreatePlayer();
             }
         }, error =>
         {
             statusText.text = "Login error. Please retry.";
             OnCreatePlayerErrorEvent?.Invoke();
         });
-    }
-    
-    private void CreatePlayer()
-    {
-        statusText.text = "Creating player...";
-
-        var request = new ExecuteFunctionRequest()
-        {
-            Entity = new EntityKey()
-            {
-                Id = PlayFabSettings.staticPlayer.EntityId,
-                Type = PlayFabSettings.staticPlayer.EntityType
-            },
-            FunctionName = "CreateOpenfortPlayer",
-            GeneratePlayStreamEvent = true,
-        };
-
-        PlayFabCloudScriptAPI.ExecuteFunction(request, OnCreatePlayerSuccess, OnCreatePlayerError);
     }
 
     public void MintNFT()
@@ -183,6 +165,7 @@ public class OpenfortController : MonoBehaviour
 
     #region SUCCESS_CALLBACK_HANDLERS
 
+    //TODO
     private void OnCreatePlayerSuccess(ExecuteFunctionResult result)
     {
         statusText.text = "Player created successfully!";
@@ -251,6 +234,7 @@ public class OpenfortController : MonoBehaviour
 
     #region ERROR_CALLBACK_HANDLERS
 
+    //TODO
     private void OnCreatePlayerError(PlayFabError error)
     {
         statusText.text = "Error creating player!";
