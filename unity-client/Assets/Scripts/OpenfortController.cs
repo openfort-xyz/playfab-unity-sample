@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Openfort;
+using Openfort.Model;
+using Openfort.Recovery;
 using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.CloudScriptModels;
@@ -54,10 +57,48 @@ public class OpenfortController : MonoBehaviour
     
     private string _playerId;
     private string _playerWalletAddress;
+    
+    public static OpenfortController Instance { get; private set; }
+    
+    private const string PublishableKey = "pk_test_c7e20e6a-7028-5dab-b081-5f39be019260";
+    private OpenfortSDK mOpenfort;
+
+    [HideInInspector] public string oauthAccessToken;
+    
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    public async void AuthenticateWithOAuth(string idToken)
+    {
+        Debug.Log("PlayFab session ticket: " + idToken);
+        
+        mOpenfort = new OpenfortSDK(PublishableKey); 
+        oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken);
+        Debug.Log("Access Token: " + oauthAccessToken);
+
+        try
+        {
+            mOpenfort.ConfigureEmbeddedSigner(80001);
+        }
+        catch (MissingRecoveryMethod)
+        {
+            await mOpenfort.ConfigureEmbeddedRecovery(new PasswordRecovery("secret"));
+        }
+    }
 
     #region AZURE_FUNCTION_CALLERS
 
-    public void PlayFabAuth_OnLoginSuccess_Handler()
+    public void PlayFabAuth_OnLoginSuccess_Handler(LoginResult loginResult)
     {
         var request = new GetUserDataRequest();
 
@@ -72,7 +113,9 @@ public class OpenfortController : MonoBehaviour
             }
             else
             {
-                //TODO! CreatePlayer();
+                // Get sessionTicket from LoginResult (PlayFab LoginResult)
+                var sessionTicket = loginResult.SessionTicket;
+                AuthenticateWithOAuth(sessionTicket);
             }
         }, error =>
         {

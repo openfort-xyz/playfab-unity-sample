@@ -38,6 +38,7 @@ public class GooglePlayAuth : MonoBehaviour
                 Debug.Log("Login with Google Play successful.");
                 PlayGamesPlatform.Instance.RequestServerSideAccess(true, authCode =>
                 {
+                    //PlayGamesPlatform.Instance.GetUserId()
                     Debug.Log($"Auth code is {authCode}");
                     OnGooglePlayAuthSuccess?.Invoke(authCode);
                 });

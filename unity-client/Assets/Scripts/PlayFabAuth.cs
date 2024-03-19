@@ -23,7 +23,7 @@ public class PlayFabAuth : MonoBehaviour
     public TextMeshProUGUI statusText;
 
     [Header("Events")]
-    public UnityEvent OnLoginSuccess;
+    public UnityEvent<LoginResult> OnLoginSuccess;
 
     #region PUBLIC_METHODS
 
@@ -81,7 +81,7 @@ public class PlayFabAuth : MonoBehaviour
     {
         statusText.text = "Successfully logged in!";
         Debug.Log("Successfully logged in!");
-        OnLoginSuccess?.Invoke();
+        OnLoginSuccess?.Invoke(result);
     }
     
     void RegisterSuccess(RegisterPlayFabUserResult result)
