@@ -15,7 +15,7 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
     <img
       width="100%"
       height="100%"
-      src="https://blog-cms.openfort.xyz/uploads/playfab_integration_workflow_2_baf1af224c.png?updated_at=2024-03-20T10:21:19.601Z"
+      src="https://blog-cms.openfort.xyz/uploads/playfab_integration_workflow_2_4d220ec470.png?updated_at=2024-03-20T10:26:16.602Z"
       alt='Openfort PlayFab integration workflow'
     />
 </div>
