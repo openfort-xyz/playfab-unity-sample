@@ -11,7 +11,14 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
 
 ## Application Workflow
 
-![Integration workflow](docs-img/openfort-playfab-integration-workflow.png)
+<div align="center">
+    <img
+      width="100%"
+      height="100%"
+      src="https://blog-cms.openfort.xyz/uploads/playfab_integration_workflow_2_baf1af224c.png?updated_at=2024-03-20T10:21:19.601Z"
+      alt='Openfort PlayFab integration workflow'
+    />
+</div>
 
 ## Prerequisites
 + [Create a PlayFab account and title](https://learn.microsoft.com/en-us/gaming/playfab/gamemanager/quickstart)
