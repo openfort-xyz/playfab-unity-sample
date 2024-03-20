@@ -5,7 +5,9 @@
 
 In this integration, we use the [Google Play Games plugin for Unity](https://github.com/playgameservices/play-games-plugin-for-unity) to handle authentication with PlayFab, ensuring a seamless and secure login experience for users on Android devices.
 
-By integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node) into Azure Functions, we establish a seamless connection to PlayFab. Unity clients using the PlayFab Unity SDK can tap into these functions, accessing the full range of Openfort features within the game environment.
+Once authenticaded we use PlayFab's user identity token to create a self-custodial account using [Embedded Smart Accounts](https://www.openfort.xyz/blog/embedded-smart-accounts).
+
+Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node) into Azure Functions, we establish a seamless connection to PlayFab. Unity clients using the PlayFab Unity SDK can tap into these functions, accessing the full range of Openfort features within the game environment.
 
 ## Application Workflow
 
@@ -31,12 +33,24 @@ By integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node)
 
 ## Set up Openfort
 
-1. #### [Add a Contract](https://dashboard.openfort.xyz/assets/new)
+1. #### [Add PlayFab as a provider](https://dashboard.openfort.xyz/assets/new)
+
+  Add your PlayFab title and choose ***Save***:
+  <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://blog-cms.openfort.xyz/uploads/playfab_integration_provider_750b4ed963.png?updated_at=2024-03-20T08:07:36.965Z"
+      alt='PlayFab provider'
+    />
+  </div>
+
+2. #### [Add a Contract](https://dashboard.openfort.xyz/assets/new)
    This sample requires a contract to run. We use [0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0](https://mumbai.polygonscan.com/address/0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0) (NFT contract deployed in 80001 Mumbai). You can use this for the guide:
 
    <img src="docs-img/image-1.png" width="500">
 
-2. #### [Add a Policy](https://dashboard.openfort.xyz/policies/new)
+3. #### [Add a Policy](https://dashboard.openfort.xyz/policies/new)
    We aim to cover gas fees for users. Set a new gas policy:
 
    <img src="docs-img/image.png" width="500">
