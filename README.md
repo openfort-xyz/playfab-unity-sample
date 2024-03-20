@@ -35,15 +35,15 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
 
 1. #### [Add PlayFab as a provider](https://dashboard.openfort.xyz/assets/new)
 
-  Add your PlayFab title and choose ***Save***:
-  <div align="center">
+   Add your PlayFab title and choose ***Save***:
+   <div align="center">
     <img
       width="50%"
       height="50%"
       src="https://blog-cms.openfort.xyz/uploads/playfab_integration_provider_750b4ed963.png?updated_at=2024-03-20T08:07:36.965Z"
       alt='PlayFab provider'
     />
-  </div>
+   </div>
 
 2. #### [Add a Contract](https://dashboard.openfort.xyz/assets/new)
    This sample requires a contract to run. We use [0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0](https://mumbai.polygonscan.com/address/0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0) (NFT contract deployed in 80001 Mumbai). You can use this for the guide:
