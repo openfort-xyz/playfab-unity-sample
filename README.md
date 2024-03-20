@@ -33,10 +33,10 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
 
 ## Set up Openfort
 
-1. #### [Add PlayFab as a provider](https://dashboard.openfort.xyz/assets/new)
+1. #### [Add PlayFab as a provider](https://dashboard.openfort.xyz/players/auth/providers)
 
    Add your PlayFab title and choose ***Save***:
-   <div align="center">
+   <div align="left">
     <img
       width="50%"
       height="50%"
