@@ -86,7 +86,7 @@ public class OpenfortController : MonoBehaviour
         Debug.Log("PlayFab session ticket: " + idToken);
         
         mOpenfort = new OpenfortSDK(PublishableKey); 
-        oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken);
+        oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken, TokenType.IdToken);
         Debug.Log("Access Token: " + oauthAccessToken);
         
         
