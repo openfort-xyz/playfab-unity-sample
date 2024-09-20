@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
-using Openfort;
-using Openfort.Model;
-using Openfort.Recovery;
+using Openfort.OpenfortSDK;
+using Openfort.OpenfortSDK.Model;
 using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.CloudScriptModels;
@@ -64,7 +63,8 @@ public class OpenfortController : MonoBehaviour
     public static OpenfortController Instance { get; private set; }
     
     private const string PublishableKey = "pk_test_4eb92d75-d304-5930-b55a-8515ea84fe0e";
-    private OpenfortSDK mOpenfort;
+
+    private OpenfortSDK openfort;
 
     [HideInInspector] public string oauthAccessToken;
     
@@ -85,8 +85,19 @@ public class OpenfortController : MonoBehaviour
     {
         Debug.Log("PlayFab session ticket: " + idToken);
         
+        openfort = await OpenfortSDK.Init(PublishableKey);
+        
+        var request = new ThirdPartyProviderRequest(
+            ThirdPartyOAuthProvider.Playfab,
+            idToken,
+            TokenType.IdToken
+        );
+        
+        var authResponse = await openfort.AuthenticateWithThirdPartyProvider(request);
+
+        /* 
         mOpenfort = new OpenfortSDK(PublishableKey); 
-        oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken, TokenType.IdToken);
+        oauthAccessToken = await mOpenfort.AuthenticateWithOAuth(OAuthProvider.Playfab, idToken);
         Debug.Log("Access Token: " + oauthAccessToken);
         
         
@@ -98,6 +109,7 @@ public class OpenfortController : MonoBehaviour
         {
             await mOpenfort.ConfigureEmbeddedRecovery(new PasswordRecovery("secret"));
         }
+        */
         
         SavePlayerData();
     }
@@ -295,12 +307,15 @@ public class OpenfortController : MonoBehaviour
 
             try
             {
+                // TODO
+                /*
                 var intentResponse = await mOpenfort.SendSignatureTransactionIntentRequest(txId, userOpHash);
                 var transactionHash = intentResponse.Response.TransactionHash;
 
                 Debug.Log($"Transaction: {transactionHash} signed!");
                 statusText.text = "Transaction signed. Fetching inventory...";
                 
+                */ 
                 GetTransactionIntent(txId);
             }
             catch (Exception e)
