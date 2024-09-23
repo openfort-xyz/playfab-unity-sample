@@ -10,7 +10,6 @@ using PlayFab.CloudScriptModels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using EntityKey = PlayFab.CloudScriptModels.EntityKey;
 
 public class OpenfortController : MonoBehaviour
 {
@@ -62,7 +61,7 @@ public class OpenfortController : MonoBehaviour
     
     public static OpenfortController Instance { get; private set; }
     
-    private const string PublishableKey = "pk_test_4eb92d75-d304-5930-b55a-8515ea84fe0e";
+    private const string PublishableKey = "pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803";
 
     private OpenfortSDK openfort;
 
@@ -80,20 +79,32 @@ public class OpenfortController : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
-    public async void AuthenticateWithOAuth(string idToken)
+
+    private async void Start() {
+        openfort = await OpenfortSDK.Init(PublishableKey);
+
+        Debug.Log(openfort);
+    }
+
+    public async void Authenticate(string idToken)
     {
         Debug.Log("PlayFab session ticket: " + idToken);
         
-        openfort = await OpenfortSDK.Init(PublishableKey);
-        
-        var request = new ThirdPartyProviderRequest(
+        var request = new ThirdPartyOAuthRequest(
             ThirdPartyOAuthProvider.Playfab,
             idToken,
             TokenType.IdToken
         );
         
-        var authResponse = await openfort.AuthenticateWithThirdPartyProvider(request);
+        try
+        {
+            await openfort.AuthenticateWithThirdPartyProvider(request);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+            throw;
+        }
 
         /* 
         mOpenfort = new OpenfortSDK(PublishableKey); 
@@ -111,7 +122,7 @@ public class OpenfortController : MonoBehaviour
         }
         */
         
-        SavePlayerData();
+        // TODO SavePlayerData();
     }
 
     #region AZURE_FUNCTION_CALLERS
@@ -156,7 +167,7 @@ public class OpenfortController : MonoBehaviour
             {
                 // Get sessionTicket from LoginResult (PlayFab LoginResult)
                 var sessionTicket = loginResult.SessionTicket;
-                AuthenticateWithOAuth(sessionTicket);
+                Authenticate(sessionTicket);
             }
         }, error =>
         {
