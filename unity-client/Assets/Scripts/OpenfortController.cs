@@ -61,7 +61,9 @@ public class OpenfortController : MonoBehaviour
     
     public static OpenfortController Instance { get; private set; }
     
-    private const string PublishableKey = "pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803";
+    private const string PubApiKey = "pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803";
+    private const string PubShieldKey = "9ce99a37-562d-4889-9152-a410b63895f5";
+    private const string SecretShieldKey = "b64f3a9f-8845-474c-944c-a633b16fa671";
 
     private OpenfortSDK openfort;
 
@@ -81,7 +83,7 @@ public class OpenfortController : MonoBehaviour
     }
 
     private async void Start() {
-        openfort = await OpenfortSDK.Init(PublishableKey);
+        openfort = await OpenfortSDK.Init(PubApiKey, PubShieldKey);
 
         Debug.Log(openfort);
     }
@@ -90,7 +92,7 @@ public class OpenfortController : MonoBehaviour
     {
         Debug.Log("PlayFab session ticket: " + idToken);
         
-        var request = new ThirdPartyOAuthRequest(
+        var oAuthRequest = new ThirdPartyOAuthRequest(
             ThirdPartyOAuthProvider.Playfab,
             idToken,
             TokenType.IdToken
@@ -98,7 +100,12 @@ public class OpenfortController : MonoBehaviour
         
         try
         {
-            await openfort.AuthenticateWithThirdPartyProvider(request);
+            var authResponse = await openfort.AuthenticateWithThirdPartyProvider(oAuthRequest);
+
+            int chainId = 80002;
+            ShieldAuthentication shieldConfig = new ShieldAuthentication(ShieldAuthType.Openfort, idToken, "playfab", "idToken");
+            EmbeddedSignerRequest signerRequest = new EmbeddedSignerRequest(chainId, shieldConfig, "RecoveryPSWD123");
+            await openfort.ConfigureEmbeddedSigner(signerRequest);
         }
         catch (Exception e)
         {
