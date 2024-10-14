@@ -36,7 +36,7 @@ const httpTrigger: AzureFunction = async function (
 
     async function getPlayerNftInventory(playerId: string) {
       context.log(`Fetching NFT inventory for playerId: ${playerId}`);
-      const inventory = await openfort.inventories.getPlayerNftInventory({ playerId: playerId, chainId: CHAIN_ID });
+      const inventory = await openfort.inventories.getPlayerNftInventory({ id: playerId, chainId: CHAIN_ID });
       
       if (!inventory) {
           throw new Error("Failed to retrieve inventory.");
