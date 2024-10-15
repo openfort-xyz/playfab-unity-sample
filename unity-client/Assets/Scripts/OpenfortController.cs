@@ -303,8 +303,9 @@ public class OpenfortController : MonoBehaviour
 
         if (nftItems.Count == 0)
         {
+            // TODO add refresh button! 
             statusText.text = "NFT inventory is empty.";
-            mintPanel.SetActive(true);
+            // mintPanel.SetActive(true);
         }
         else
         {
