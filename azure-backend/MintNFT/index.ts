@@ -71,9 +71,7 @@ async function createTransactionIntent(playerId: string): Promise<TransactionInt
     const interaction: Interaction = {
         contract: OF_NFT_CONTRACT,
         functionName: "mint",
-        functionArgs: [
-            playerId // _receiver (address)
-        ]
+        functionArgs: [playerId]
     };
     
 

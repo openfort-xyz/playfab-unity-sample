@@ -117,7 +117,7 @@ public class OpenfortController : MonoBehaviour
         // Configure Embedded Signer
         try
         { 
-            int chainId = 84532; // Base Sepolia chain
+            int chainId = 11155111; // Sepolia chain
             string encryptionSession = await OpenfortSessionManager.GetEncryptionSession();
 
             ShieldAuthentication shieldConfig = new ShieldAuthentication(ShieldAuthType.Openfort, oauthAccessToken, "playfab", "idToken");
