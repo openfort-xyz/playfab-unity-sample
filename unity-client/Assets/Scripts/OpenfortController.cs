@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Openfort.OpenfortSDK;
@@ -64,6 +65,7 @@ public class OpenfortController : MonoBehaviour
     private const string PubApiKey = "pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803";
     private const string PubShieldKey = "7e6ba9bc-fac0-434f-8cec-48445e22e225";
 
+    // TODO: Get ShieldEncryptShare from backend
     string ShieldEncryptShare = "AhpS06In9jYDJHuubFP+uArrmK2lmb4MwZtaWDQXLhOX";
 
     private OpenfortSDK openfort;
@@ -115,12 +117,12 @@ public class OpenfortController : MonoBehaviour
         // Configure Embedded Signer
         try
         { 
-            int chainId = 80002;
+            int chainId = 84532; // Base Sepolia chain
             string encryptionSession = await OpenfortSessionManager.GetEncryptionSession();
 
             ShieldAuthentication shieldConfig = new ShieldAuthentication(ShieldAuthType.Openfort, oauthAccessToken, "playfab", "idToken");
-            
             EmbeddedSignerRequest request = new EmbeddedSignerRequest(chainId, shieldConfig);
+
             await openfort.ConfigureEmbeddedSigner(request);
         }
         catch (Exception e)
@@ -203,7 +205,7 @@ public class OpenfortController : MonoBehaviour
             GeneratePlayStreamEvent = true
         };
 
-        PlayFabCloudScriptAPI.ExecuteFunction(request, OnMintNftSuccess, OnMintNftError);
+        PlayFabCloudScriptAPI.ExecuteFunction(request, OnMintNftSuccessAsync, OnMintNftError);
     }
 
     public void FindTransactionIntent()
@@ -279,8 +281,36 @@ public class OpenfortController : MonoBehaviour
         mintPanel.SetActive(true);
     }
 
-    private void OnMintNftSuccess(ExecuteFunctionResult result)
+    private async void OnMintNftSuccessAsync(ExecuteFunctionResult result)
     {
+        TransactionIntentResponse txResponse = null;
+        
+        // Deserialize transaction intent
+        try
+        {
+            txResponse = JsonConvert.DeserializeObject<TransactionIntentResponse>(result.FunctionResult.ToString());   
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+            statusText.text = "Error deserializing transaction intent.";
+            throw;
+        }
+
+        // Sign the transaction intent
+        try
+        {
+            SignatureTransactionIntentRequest signatureRequest = new SignatureTransactionIntentRequest(txResponse.Id, txResponse.UserOperationHash);
+            TransactionIntentResponse signatureResponse = await openfort.SendSignatureTransactionIntentRequest(signatureRequest);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+            statusText.text = "Error signing transaction intent.";
+            mintPanel.SetActive(true);
+            throw;
+        }
+
         statusText.text = "NFT minted successfully!";
         Debug.Log("minted = true");
         GetPlayerNftInventory(_playerId);

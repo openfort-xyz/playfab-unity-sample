@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import Openfort from "@openfort/openfort-node";
 
-const CHAIN_ID = 80001; // Mumbai
+const OF_CHAIN_ID = process.env.OF_CHAIN_ID; 
 const openfort = new Openfort(process.env.OF_API_KEY);
 
 function isValidRequestBody(body: any): boolean {
@@ -36,7 +36,7 @@ const httpTrigger: AzureFunction = async function (
 
     async function getPlayerNftInventory(playerId: string) {
       context.log(`Fetching NFT inventory for playerId: ${playerId}`);
-      const inventory = await openfort.inventories.getPlayerNftInventory({ id: playerId, chainId: CHAIN_ID });
+      const inventory = await openfort.inventories.getPlayerNftInventory({ id: playerId, chainId: Number(OF_CHAIN_ID) });
       
       if (!inventory) {
           throw new Error("Failed to retrieve inventory.");

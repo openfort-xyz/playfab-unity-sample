@@ -4,6 +4,7 @@ import { PlayFabServer } from "playfab-sdk"; // Import PlayFab Server SDK
 
 // Environment variables
 const OF_API_KEY = process.env.OF_API_KEY;
+const OF_SPONSOR_POLICY = process.env.OF_SPONSOR_POLICY;
 const PLAYFAB_SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 const PLAYFAB_TITLE_ID = process.env.PLAYFAB_TITLE_ID;
 
