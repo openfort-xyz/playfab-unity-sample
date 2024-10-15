@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Openfort.OpenfortSDK;
 using Openfort.OpenfortSDK.Model;
@@ -89,7 +87,9 @@ public class OpenfortController : MonoBehaviour
 
     private async void Start() {
         // Initialize Openfort SDK
+        statusText.text = "Initializing Openfort SDK...";
         openfort = await OpenfortSDK.Init(PubApiKey, PubShieldKey, ShieldEncryptShare);
+        statusText.text = "Openfort SDK initialized.";
     }
 
     #endregion
@@ -106,12 +106,14 @@ public class OpenfortController : MonoBehaviour
             {
                 _playerId = result.Data["OpenfortPlayerId"].Value;
                 _playerWalletAddress = result.Data["PlayerWalletAddress"].Value;
+                statusText.text = "Player data found. Fetching NFT inventory...";
                 GetPlayerNftInventory(_playerId);
             }
             else
             {
                 // Get sessionTicket from LoginResult (PlayFab LoginResult)
                 var sessionTicket = loginResult.SessionTicket;
+                statusText.text = "Player data not found. Authenticating...";
                 Authenticate(sessionTicket);
             }
         }, error =>
@@ -137,11 +139,14 @@ public class OpenfortController : MonoBehaviour
         // Authenticate with Openfort using PlayFab OAuth token
         try
         {
+            statusText.text = "Authenticating with Openfort...";
             await openfort.AuthenticateWithThirdPartyProvider(oAuthRequest);
+            statusText.text = "Authenticated with Openfort.";
         }
         catch (Exception e)
         {
             Debug.LogError(e.Message);
+            statusText.text = "Authentication failed.";
             throw;
         }
         
@@ -154,11 +159,14 @@ public class OpenfortController : MonoBehaviour
             ShieldAuthentication shieldConfig = new ShieldAuthentication(ShieldAuthType.Openfort, oauthAccessToken, "playfab", "idToken");
             EmbeddedSignerRequest request = new EmbeddedSignerRequest(chainId, shieldConfig);
 
+            statusText.text = "Configuring Embedded Signer...";
             await openfort.ConfigureEmbeddedSigner(request);
+            statusText.text = "Embedded Signer configured.";
         }
         catch (Exception e)
         {
             Debug.LogError(e.Message);
+            statusText.text = "Failed to configure Embedded Signer.";
             throw;
         }
 
@@ -172,6 +180,7 @@ public class OpenfortController : MonoBehaviour
         if (string.IsNullOrEmpty(oauthAccessToken))
         {
             Debug.LogError("OAuth access token is null or empty.");
+            statusText.text = "OAuth access token is null or empty.";
             return;
         }
 
@@ -195,6 +204,7 @@ public class OpenfortController : MonoBehaviour
         if (string.IsNullOrEmpty(oauthAccessToken))
         {
             Debug.LogError("Player ID is null or empty.");
+            statusText.text = "Player ID is null or empty.";
             return;
         }
 
@@ -253,7 +263,8 @@ public class OpenfortController : MonoBehaviour
         // Deserialize transaction intent
         try
         {
-            txResponse = JsonConvert.DeserializeObject<TransactionIntentResponse>(result.FunctionResult.ToString());   
+            txResponse = JsonConvert.DeserializeObject<TransactionIntentResponse>(result.FunctionResult.ToString());
+            statusText.text = "Transaction intent deserialized.";
         }
         catch (Exception e)
         {
@@ -265,8 +276,10 @@ public class OpenfortController : MonoBehaviour
         // Sign the transaction intent
         try
         {
+            statusText.text = "Signing transaction intent...";
             SignatureTransactionIntentRequest signatureRequest = new SignatureTransactionIntentRequest(txResponse.Id, txResponse.UserOperationHash);
             TransactionIntentResponse signatureResponse = await openfort.SendSignatureTransactionIntentRequest(signatureRequest);
+            statusText.text = "Transaction intent signed.";
         }
         catch (Exception e)
         {
@@ -321,7 +334,7 @@ public class OpenfortController : MonoBehaviour
         Debug.Log(error);
         if (error.GenerateErrorReport().Contains("10000ms"))
         {
-            statusText.text = "Timeout during NFT minting. Checking transaction...";
+            statusText.text = "Timeout during NFT minting. Please try again.";
             
             // TODO: Implement FindTransactionIntent()
             mintPanel.SetActive(true);
