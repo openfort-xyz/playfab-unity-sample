@@ -72,6 +72,8 @@ public class OpenfortController : MonoBehaviour
 
     [HideInInspector] public string oauthAccessToken;
     
+    #region UNITY_CALLBACKS
+
     void Awake()
     {
         if (Instance == null)
@@ -90,7 +92,36 @@ public class OpenfortController : MonoBehaviour
         openfort = await OpenfortSDK.Init(PubApiKey, PubShieldKey, ShieldEncryptShare);
     }
 
-    // TODO Change name to AuthenticateWithPlayfab
+    #endregion
+
+    // We get the session ticket from the PlayFab LoginResult, which will be needed to authenticate with Openfort
+    public void PlayFabAuth_OnLoginSuccess_Handler(LoginResult loginResult)
+    {
+        var request = new GetUserDataRequest();
+
+        PlayFabClientAPI.GetUserReadOnlyData(request, result =>
+        {
+            if (result.Data != null && result.Data.ContainsKey("OpenfortPlayerId") &&
+                result.Data.ContainsKey("PlayerWalletAddress"))
+            {
+                _playerId = result.Data["OpenfortPlayerId"].Value;
+                _playerWalletAddress = result.Data["PlayerWalletAddress"].Value;
+                GetPlayerNftInventory(_playerId);
+            }
+            else
+            {
+                // Get sessionTicket from LoginResult (PlayFab LoginResult)
+                var sessionTicket = loginResult.SessionTicket;
+                Authenticate(sessionTicket);
+            }
+        }, error =>
+        {
+            statusText.text = "Login error. Please retry.";
+            savePlayerDataErrorEvent?.Invoke();
+        });
+    }
+
+    // Authenticate using Openfort SDK
     public async void Authenticate(string idToken)
     {
         Debug.Log("PlayFab ID Token (session ticket): " + idToken);
@@ -158,32 +189,6 @@ public class OpenfortController : MonoBehaviour
 
         PlayFabCloudScriptAPI.ExecuteFunction(request, OnSavePlayerDataSuccess, OnSavePlayerDataError);
     }
-    
-    public void PlayFabAuth_OnLoginSuccess_Handler(LoginResult loginResult)
-    {
-        var request = new GetUserDataRequest();
-
-        PlayFabClientAPI.GetUserReadOnlyData(request, result =>
-        {
-            if (result.Data != null && result.Data.ContainsKey("OpenfortPlayerId") &&
-                result.Data.ContainsKey("PlayerWalletAddress"))
-            {
-                _playerId = result.Data["OpenfortPlayerId"].Value;
-                _playerWalletAddress = result.Data["PlayerWalletAddress"].Value;
-                GetPlayerNftInventory(_playerId);
-            }
-            else
-            {
-                // Get sessionTicket from LoginResult (PlayFab LoginResult)
-                var sessionTicket = loginResult.SessionTicket;
-                Authenticate(sessionTicket);
-            }
-        }, error =>
-        {
-            statusText.text = "Login error. Please retry.";
-            savePlayerDataErrorEvent?.Invoke();
-        });
-    }
 
     public void MintNFT()
     {
@@ -206,46 +211,6 @@ public class OpenfortController : MonoBehaviour
         };
 
         PlayFabCloudScriptAPI.ExecuteFunction(request, OnMintNftSuccessAsync, OnMintNftError);
-    }
-
-    public void FindTransactionIntent()
-    {
-        if (string.IsNullOrEmpty(_playerId) || string.IsNullOrEmpty(_playerWalletAddress))
-        {
-            Debug.LogError("Player ID or Player Wallet Address is null or empty.");
-            return;
-        }
-
-        statusText.text = "Searching for transaction intent...";
-
-        var request = new ExecuteFunctionRequest
-        {
-            FunctionName = "FindTransactionIntent",
-            FunctionParameter = new
-            {
-                playerId = _playerId,
-                receiverAddress = _playerWalletAddress
-            },
-            GeneratePlayStreamEvent = true
-        };
-
-        PlayFabCloudScriptAPI.ExecuteFunction(request, OnFindTransactionIntentSuccess, OnGeneralError);
-    }
-
-    private void GetTransactionIntent(string transactionIntentId)
-    {
-        statusText.text = "Getting transaction intent...";
-
-        var request = new ExecuteFunctionRequest
-        {
-            FunctionName = "GetTransactionIntent",
-            FunctionParameter = new
-            {
-                transactionIntentId
-            }
-        };
-
-        PlayFabCloudScriptAPI.ExecuteFunction(request, OnGetTransactionIntentSuccess, OnGeneralError);
     }
 
     private void GetPlayerNftInventory(string playerId)
@@ -316,64 +281,6 @@ public class OpenfortController : MonoBehaviour
         GetPlayerNftInventory(_playerId);
     }
 
-    private void OnFindTransactionIntentSuccess(ExecuteFunctionResult result)
-    {
-        statusText.text = "Transaction intent found!";
-        Debug.Log(result.FunctionResult);
-        var json = result.FunctionResult.ToString();
-        var responseObject = JsonUtility.FromJson<FindTransactionIntentResponse>(json);
-
-        GetTransactionIntent(responseObject.id);
-    }
-
-    private async void OnGetTransactionIntentSuccess(ExecuteFunctionResult result)
-    {
-        var responseObject = JsonUtility.FromJson<GetTransactionIntentResponse>(result.FunctionResult.ToString());
-        if (responseObject.minted)
-        {
-            statusText.text = "Transaction signed. Fetching inventory...";
-            Debug.Log("Minted is true");
-
-            UniTask.Delay(2000);
-            GetPlayerNftInventory(_playerId);
-        }
-        else
-        {
-            Debug.Log("Minted is false");
-
-            var txId = responseObject.id;
-            var userOpHash = responseObject.userOpHash;
-
-            if (string.IsNullOrEmpty(userOpHash))
-            {
-                Debug.LogWarning("userOpHash is null.");
-                GetTransactionIntent(responseObject.id);
-                return;
-            }
-            
-            Debug.Log($"userOpHash: {userOpHash}");
-
-            try
-            {
-                // TODO
-                /*
-                var intentResponse = await mOpenfort.SendSignatureTransactionIntentRequest(txId, userOpHash);
-                var transactionHash = intentResponse.Response.TransactionHash;
-
-                Debug.Log($"Transaction: {transactionHash} signed!");
-                statusText.text = "Transaction signed. Fetching inventory...";
-                
-                */ 
-                GetTransactionIntent(txId);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-    }
-
     private void OnGetPlayerNftInventorySuccess(ExecuteFunctionResult result)
     {
         statusText.text = "NFT inventory retrieved!";
@@ -415,7 +322,9 @@ public class OpenfortController : MonoBehaviour
         if (error.GenerateErrorReport().Contains("10000ms"))
         {
             statusText.text = "Timeout during NFT minting. Checking transaction...";
-            FindTransactionIntent();
+            
+            // TODO: Implement FindTransactionIntent()
+            mintPanel.SetActive(true);
         }
         else
         {
