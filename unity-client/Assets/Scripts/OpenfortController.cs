@@ -184,7 +184,7 @@ public class OpenfortController : MonoBehaviour
             return;
         }
 
-        statusText.text = "Saving player data...";
+        statusText.text = "Saving Openfort Player data to PlayFab...";
 
         var request = new ExecuteFunctionRequest
         {
@@ -244,7 +244,7 @@ public class OpenfortController : MonoBehaviour
     #region SUCCESS_CALLBACK_HANDLERS
     private void OnSavePlayerDataSuccess(ExecuteFunctionResult result)
     {
-        statusText.text = "Player data saved!";
+        statusText.text = "Openfort Player data saved to PlayFab!";
 
         string json = result.FunctionResult.ToString();
         SavePlayerDataResponse dataResponse = JsonUtility.FromJson<SavePlayerDataResponse>(json);
