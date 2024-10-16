@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Openfort.OpenfortSDK;
 using Openfort.OpenfortSDK.Model;
@@ -291,6 +292,10 @@ public class OpenfortController : MonoBehaviour
 
         statusText.text = "NFT minted successfully!";
         Debug.Log("minted = true");
+
+        // Add some delay before fetching NFT inventory
+        await UniTask.Delay(5000);
+
         GetPlayerNftInventory(_playerId);
     }
 
