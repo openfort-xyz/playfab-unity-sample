@@ -1093,6 +1093,8 @@ MonoBehaviour:
   mintPanel: {fileID: 2019007283}
   nftPrefab: {fileID: 7640152571703931443, guid: bd007ad19d9c8f64187d43236efcee41, type: 3}
   statusText: {fileID: 1874908714}
+  pubApiKey: pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803
+  pubShieldKey: 7e6ba9bc-fac0-434f-8cec-48445e22e225
   oauthAccessToken: 
 --- !u!1 &314308439
 GameObject:
@@ -2018,7 +2020,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 262115555}
         m_TargetAssemblyTypeName: OpenfortController, Assembly-CSharp
-        m_MethodName: PlayFabAuth_OnLoginSuccess_Handler
+        m_MethodName: PlayFabAuth_OnLoginSuccess_HandlerAsync
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

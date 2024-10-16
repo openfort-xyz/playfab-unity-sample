@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Openfort.OpenfortSDK;
@@ -8,6 +9,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.CloudScriptModels;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -61,13 +63,11 @@ public class OpenfortController : MonoBehaviour
     
     public static OpenfortController Instance { get; private set; }
     
-    private const string PubApiKey = "pk_test_b3dace8a-6d2b-5163-90e2-2a40065a3803";
-    private const string PubShieldKey = "7e6ba9bc-fac0-434f-8cec-48445e22e225";
+    [Header("Openfort SDK Config")]
+    [SerializeField] string pubApiKey;
+    [SerializeField] string pubShieldKey;
 
-    // TODO: Get ShieldEncryptShare from backend
-    string ShieldEncryptShare = "AhpS06In9jYDJHuubFP+uArrmK2lmb4MwZtaWDQXLhOX";
-
-    private OpenfortSDK openfort;
+    private OpenfortSDK openfortSDK;
 
     [HideInInspector] public string oauthAccessToken;
     
@@ -86,22 +86,38 @@ public class OpenfortController : MonoBehaviour
         }
     }
 
-    private async void Start() {
+    #endregion
+
+    private async UniTask InitializeSDK()
+    {
+        // Check if PubApiKey and PubShieldKey are set
+        if (string.IsNullOrEmpty(pubApiKey) || string.IsNullOrEmpty(pubShieldKey))
+        {
+            Debug.LogError("PubApiKey and PubShieldKey are not set.");
+            statusText.text = "PubApiKey and PubShieldKey are not set.";
+            return;
+        }
+
+        // Getting Shield Encryption Share
+        statusText.text = "Getting Openfort Shield Encryption Share...";
+        string ShieldEncryptShare = await OpenfortSessionManager.GetShieldEncryptionShare();
+
         // Initialize Openfort SDK
         statusText.text = "Initializing Openfort SDK...";
-        openfort = await OpenfortSDK.Init(PubApiKey, PubShieldKey, ShieldEncryptShare);
+        openfortSDK = await OpenfortSDK.Init(pubApiKey, pubShieldKey, ShieldEncryptShare);
         statusText.text = "Openfort SDK initialized.";
     }
 
-    #endregion
-
     // We get the session ticket from the PlayFab LoginResult, which will be needed to authenticate with Openfort
-    public void PlayFabAuth_OnLoginSuccess_Handler(LoginResult loginResult)
+    public async void PlayFabAuth_OnLoginSuccess_HandlerAsync(LoginResult loginResult)
     {
+        // Initialize Openfort SDK
+        await InitializeSDK();
+        
         var request = new GetUserDataRequest();
-
         PlayFabClientAPI.GetUserReadOnlyData(request, result =>
         {
+            // Check if player data exists
             if (result.Data != null && result.Data.ContainsKey("OpenfortPlayerId") &&
                 result.Data.ContainsKey("PlayerWalletAddress"))
             {
@@ -141,7 +157,7 @@ public class OpenfortController : MonoBehaviour
         try
         {
             statusText.text = "Authenticating with Openfort...";
-            await openfort.AuthenticateWithThirdPartyProvider(oAuthRequest);
+            await openfortSDK.AuthenticateWithThirdPartyProvider(oAuthRequest);
             statusText.text = "Authenticated with Openfort.";
         }
         catch (Exception e)
@@ -161,7 +177,7 @@ public class OpenfortController : MonoBehaviour
             EmbeddedSignerRequest request = new EmbeddedSignerRequest(chainId, shieldConfig);
 
             statusText.text = "Configuring Embedded Signer...";
-            await openfort.ConfigureEmbeddedSigner(request);
+            await openfortSDK.ConfigureEmbeddedSigner(request);
             statusText.text = "Embedded Signer configured.";
         }
         catch (Exception e)
@@ -279,7 +295,7 @@ public class OpenfortController : MonoBehaviour
         {
             statusText.text = "Signing transaction intent...";
             SignatureTransactionIntentRequest signatureRequest = new SignatureTransactionIntentRequest(txResponse.Id, txResponse.UserOperationHash);
-            TransactionIntentResponse signatureResponse = await openfort.SendSignatureTransactionIntentRequest(signatureRequest);
+            TransactionIntentResponse signatureResponse = await openfortSDK.SendSignatureTransactionIntentRequest(signatureRequest);
             statusText.text = "Transaction intent signed.";
         }
         catch (Exception e)

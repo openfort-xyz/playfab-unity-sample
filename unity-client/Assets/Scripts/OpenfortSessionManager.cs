@@ -6,6 +6,38 @@ using UnityEngine;
 
 public class OpenfortSessionManager
 {
+    public static async UniTask<string> GetShieldEncryptionShare()
+    {
+        var request = new ExecuteFunctionRequest
+        {
+            FunctionName = "GetShieldEncryptionShare",
+            FunctionParameter = new { },
+            GeneratePlayStreamEvent = true
+        };
+
+        var taskCompletionSource = new UniTaskCompletionSource<string>();
+
+        PlayFabCloudScriptAPI.ExecuteFunction(request, result =>
+        {
+            if (result.Error != null)
+            {
+                Debug.LogError($"Failed to get encryption share: {result.Error.Message}");
+                taskCompletionSource.TrySetException(new Exception("Failed to get encryption share"));
+            }
+            else
+            {
+                var shieldEncryptionShare = result.FunctionResult.ToString();
+                taskCompletionSource.TrySetResult(shieldEncryptionShare);
+            }
+        }, error =>
+        {
+            Debug.LogError($"Failed to get encryption share: {error.ErrorMessage}");
+            taskCompletionSource.TrySetException(new Exception("Failed to get encryption share"));
+        });
+
+        return await taskCompletionSource.Task;
+    }
+
     public static async UniTask<string> GetEncryptionSession()
     {
         var request = new ExecuteFunctionRequest
