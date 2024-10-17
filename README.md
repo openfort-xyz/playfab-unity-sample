@@ -221,7 +221,7 @@ Our Azure backend requires environment variables from both PlayFab and Openfort.
     - Navigate to the [Azure Portal](https://portal.azure.com/#home) and select your Function App.
     - Under ***Settings --> Environment variables***, click ***Add***:
       
-      <div align="center">
+    <div align="center">
       <img
         width="50%"
         height="50%"
@@ -261,18 +261,39 @@ Our Azure backend requires environment variables from both PlayFab and Openfort.
 2. #### Add PlayFab Environment Variables
     - Visit the [PlayFab developer dashboard](https://developer.playfab.com/), select your title, and navigate to ***Settings wheel --> Title settings***:
 
-      <img src="docs-img/image-24.png" width="500"> //TODO
+      <div align="center">
+        <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_14_5bc8927522.png?updated_at=2024-10-17T11:03:15.964Z"
+        alt='playfab_integration_14_5bc8927522'
+        />  
+      </div>
 
     - In the ***API Features*** section, copy your ***Title ID***:
 
-      <img src="docs-img/image-29.png" width="500"> //TODO
+      <div align="center">
+        <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_15_711115c4a8.png?updated_at=2024-10-17T11:03:16.150Z"
+        alt='playfab_integration_15_711115c4a8'
+        />  
+      </div>
 
     - Under ***Secret Keys***, note down your ***Secret key***:
 
-      ![Secret Key](docs-img/image-26.png) //TODO
+      <div align="center">
+        <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_16_56663676c7.png?updated_at=2024-10-17T11:03:16.644Z"
+        alt='playfab_integration_16_56663676c7'
+        />  
+      </div>
  
     - Return to the [Azure Portal](https://portal.azure.com/#home) and choose your Function App.
-    - Under ***Configuration***, select ***New application setting*** and input:
+    - Under ***Settings --> Environment variables***, click ***Add***:
       + Name: `PLAYFAB_TITLE_ID`
       + Value: [Your Title ID]
 
@@ -284,13 +305,13 @@ Our Azure backend requires environment variables from both PlayFab and Openfort.
   After adding all the environment variables, your configuration panel should look like the following. Confirm your changes by clicking ***Save***:
 
   <div align="center">
-      <img
-        width="50%"
-        height="50%"
-        src=""
-        alt='' 
-      />  
-  </div> //TODO
+    <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_17_6748a73edf.png?updated_at=2024-10-17T11:06:47.553Z"
+    alt='playfab_integration_17_6748a73edf'
+    />  
+  </div>
 
 ## Set up Unity Client
 
@@ -304,10 +325,27 @@ To begin, open [unity-client](https://github.com/openfort-xyz/playfab-unity-samp
     - Navigate to the ***Project*** tab.
     - Search for `PlayFabSharedSettings` and input your PlayFab ***Title ID***:
 
-      <img src="docs-img/image-28.png" width="500">
+    <div align="center">
+      <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_18_591d3cad7d.png?updated_at=2024-10-17T11:13:05.455Z"
+      alt='playfab_integration_18_591d3cad7d'
+      />  
+    </div>
 
 2. #### Configure Openfort SDK
-    - //TODO Add API Keys to Openfort Controller
+
+    - Open the *Login scene* and add the **API Publishable Key** and the **Shield Publishable Key** to the *OpenfortController* config section:
+
+    <div align="center">
+      <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_19_24bc025e75.png?updated_at=2024-10-17T11:13:05.251Z"
+      alt='playfab_integration_19_24bc025e75'
+      />  
+    </div>
 
 ## Test in Editor
 
