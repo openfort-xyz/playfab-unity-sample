@@ -13,7 +13,7 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
     <img
       width="100%"
       height="100%"
-      src="https://blog-cms.openfort.xyz/uploads/playfab_integration_workflow_2_4d220ec470.png?updated_at=2024-03-20T10:26:16.602Z"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_workflow_43cf69904d.png?updated_at=2024-10-17T11:56:43.141Z"
       alt='Openfort PlayFab integration workflow'
     />
 </div>
@@ -351,25 +351,67 @@ To begin, open [unity-client](https://github.com/openfort-xyz/playfab-unity-samp
 
 Play ***Login*** scene, opt for ***Register***, provide an email and password, then click ***Register*** again. This scene should appear:
 
-![Game Scene](docs-img/image-32.png)
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_20_f934393700.png?updated_at=2024-10-17T11:20:35.838Z"
+  alt='playfab_integration_20_f934393700'
+  />  
+</div>
 
 Select ***Mint***. After a brief period, you should see a representation of your newly minted NFT:
 
-![Minted NFT](docs-img/image-33.png)
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_21_8213efd860.png?updated_at=2024-10-17T11:20:36.645Z"
+  alt='playfab_integration_21_8213efd860'
+  />  
+</div>
 
 In the [Openfort Players dashboard](https://dashboard.openfort.xyz/players), a new player entry should be visible. On selecting this player:
 
-![Player Entry](docs-img/image-34.png)
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_22_1b307cda7e.png?updated_at=2024-10-17T11:20:36.654Z"
+  alt='playfab_integration_22_1b307cda7e'
+  />  
+</div>
 
 You'll notice that a `mint` transaction has been successfully processed:
 
-![Mint Transaction](docs-img/image-35.png)
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_23_eca707b92d.png?updated_at=2024-10-17T11:27:27.546Z"
+  alt='playfab_integration_23_eca707b92d'
+  />  
+</div>
 
-Additionally, by choosing your **Mumbai Account** and viewing ***ERC-721 Token Txns***, the transaction is further confirmed:
+Additionally, by choosing your **Sepolia Wallet Address**, the explorer will open and by selecting ***NFT Transfers*** tab you'll see the transaction is further confirmed:
 
-<img src="docs-img/image-36.png" width="500">
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_24_f29150e8b8.png?updated_at=2024-10-17T11:27:28.651Z"
+  alt='playfab_integration_24_f29150e8b8'
+  />  
+</div>
 
-![Transaction Confirm 2](docs-img/image-37.png)
+<div align="center">
+  <img
+  width="50%"
+  height="50%"
+  src="https://strapi-oube.onrender.com/uploads/playfab_integration_25_8aa4b7ec6a.png?updated_at=2024-10-17T11:27:28.239Z"
+  alt='playfab_integration_25_8aa4b7ec6a'
+  />  
+</div>
 
 ## Conclusion
 
