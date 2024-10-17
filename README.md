@@ -3,9 +3,7 @@
 ## Overview
 [PlayFab](https://playfab.com/) is a backend service provided by Microsoft for game developers, offering tools for live game management, all powered by Azure's cloud infrastructure.
 
-In this integration, we use the [Google Play Games plugin for Unity](https://github.com/playgameservices/play-games-plugin-for-unity) to handle authentication with PlayFab, ensuring a seamless and secure login experience for users on Android devices.
-
-Once authenticaded we use PlayFab's user identity token to create a self-custodial account using [Embedded Smart Accounts](https://www.openfort.xyz/blog/embedded-smart-accounts).
+In this sample we use PlayFab's email & password authentication method to register a new user or log in with an existing one. Once authenticaded we use PlayFab's user identity token to create a self-custodial account using [Embedded Smart Accounts](https://www.openfort.xyz/blog/embedded-smart-accounts).
 
 Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/openfort-node) into Azure Functions, we establish a seamless connection to PlayFab. Unity clients using the PlayFab Unity SDK can tap into these functions, accessing the full range of Openfort features within the game environment.
 
@@ -30,20 +28,13 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
 + Download or clone the [sample project](https://github.com/openfort-xyz/playfab-unity-sample): 
     + Open [unity-client](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/unity-client) with Unity
     + Open [azure-backend](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/azure-backend) with VS Code
-+ Watch the [video tutorial](https://www.youtube.com/watch?v=dbLpA2YB6vU) on configuring *Google Play Games for Unity* and apply it to [unity-client](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/unity-client). Note that:
-    + You need a [Google Play Developer account](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en)
-    + You need a [Google Cloud project](https://developers.google.com/workspace/guides/create-project)
-    + Google Play Games SDK is already imported to [unity-client](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/unity-client)
-    + Skip the instructions related to ***Unity Gaming Services***
-    + We provide a [Keystore](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/unity-client/Keystore) (password: `android`). You can use it instead of [creating a new one](https://youtu.be/dbLpA2YB6vU?t=273)
-    + Skip the step to [create this script](https://youtu.be/dbLpA2YB6vU?t=1089)
 
 ## Set up Openfort
 
 1. #### [Add PlayFab as a provider](https://dashboard.openfort.xyz/players/auth/providers)
 
    Add your PlayFab title and choose ***Save***:
-   <div align="left">
+   <div align="center">
     <img
       width="50%"
       height="50%"
@@ -52,28 +43,86 @@ Moreover, by integrating the [Openfort SDK](https://github.com/openfort-xyz/open
     />
    </div>
 
-2. #### [Add a Contract](https://dashboard.openfort.xyz/assets/new)
-   This sample requires a contract to run. We use [0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0](https://mumbai.polygonscan.com/address/0x38090d1636069c0ff1Af6bc1737Fb996B7f63AC0) (NFT contract deployed in 80001 Mumbai). You can use this for the guide:
+2. #### [Create Shield Keys](https://dashboard.openfort.xyz/developers/api-keys)
+   In order to create secure self-custodial accounts for our players, we need to create [Shield Keys](https://www.openfort.xyz/docs/guides/client/api-keys#shield-secret-and-publishable-keys):
 
-   <img src="docs-img/image-1.png" width="500">
+   <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_1_a_fd65cb50f3.png?updated_at=2024-10-17T10:03:12.057Z"
+      alt='playfab_integration_1_a_fd65cb50f3'
+    />
+   </div>
 
-3. #### [Add a Policy](https://dashboard.openfort.xyz/policies/new)
+   After the creation, it's very important you save **Shield Encryption Share Key**, you will need it later:
+
+   <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_1_b_b57537dc82.png?updated_at=2024-10-17T10:03:12.650Z"
+      alt='playfab_integration_1_b_b57537dc82'
+    />
+   </div> 
+
+3. #### [Add a Contract](https://dashboard.openfort.xyz/assets)
+   This sample requires a contract to run. We use [0x51216BFCf37A1D2002A9F3290fe5037C744a6438](https://sepolia.etherscan.io/address/0x51216BFCf37A1D2002A9F3290fe5037C744a6438) (NFT contract deployed in Sepolia - 11155111). You can use the same to ease up things:
+
+   <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_1_95cbd5e3b9.png?updated_at=2024-10-17T09:13:44.426Z"
+      alt='playfab_integration_1_95cbd5e3b9'
+    />
+   </div>
+
+4. #### [Add a Policy](https://dashboard.openfort.xyz/policies/new)
    We aim to cover gas fees for users. Set a new gas policy:
 
-   <img src="docs-img/image.png" width="500">
+   <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_2_dc0ec65caa.png?updated_at=2024-10-17T09:13:44.439Z"
+      alt='playfab_integration_2_dc0ec65caa'
+    />
+   </div>
 
-   Now, add a rule so our contract uses this policy:
+   Now, add a rule to make our contract benefit from it:
 
-   <img src="docs-img/image-2.png" width="500">
+   <div align="center">
+    <img
+      width="50%"
+      height="50%"
+      src="https://strapi-oube.onrender.com/uploads/playfab_integration_3_8c21c821c5.png?updated_at=2024-10-17T09:13:44.439Z"
+      alt='playfab_integration_3_8c21c821c5'
+    />
+   </div>
 
 ## Deploy Azure Backend
 Open [azure-backend](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/azure-backend) with VS Code and sign in to Azure:
 
-![Azure backend image](docs-img/image-4.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_4_7deea77cf3.png?updated_at=2024-10-17T09:22:01.129Z"
+    alt='playfab_integration_4_7deea77cf3'
+  />
+</div>
 
 Ensure your Function App (here, it's "openfort-playfab") is listed:
 
-![Function App image](docs-img/image-5.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_5_6d5e73b886.png?updated_at=2024-10-17T09:22:01.428Z"
+    alt='playfab_integration_5_6d5e73b886'
+  />
+</div>
 
 In the terminal, run:
 ```
@@ -82,23 +131,58 @@ npm install
 
 In the explorer, right-click on a function and select ***Deploy to Function App***:
 
-<img src="docs-img/image-6.png" width="500">
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_6_ffc63d55ed.png?updated_at=2024-10-17T09:22:01.628Z"
+    alt='playfab_integration_6_ffc63d55ed'
+  />
+</div>
 
 Next, choose your Function App:
 
-![Select Function App](docs-img/image-7.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_7_977d0a46c8.png?updated_at=2024-10-17T09:22:00.931Z"
+    alt='playfab_integration_7_977d0a46c8'
+  />
+</div>
 
 Then, click on ***Deploy***:
 
-![Deploy Confirmation](docs-img/image-8.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_8_1119fa1634.png?updated_at=2024-10-17T09:22:01.232Z"
+    alt='playfab_integration_8_1119fa1634'
+  />
+</div>
 
 Navigate to your [Azure Portal](https://portal.azure.com/#home) and open your Function App. You should see all the functions listed:
 
-![Functions List](docs-img/image-10.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_9_fb12c55de4.png?updated_at=2024-10-17T09:29:35.428Z"
+    alt='playfab_integration_9_fb12c55de4'
+  />
+</div>
 
 Click on any function and select ***Get Function Url***:
 
-![Get Function URL](docs-img/image-11.png)
+<div align="center">
+  <img
+    width="50%"
+    height="50%"
+    src="https://strapi-oube.onrender.com/uploads/playfab_integration_10_c4ebde5781.png?updated_at=2024-10-17T09:29:35.242Z"
+    alt='playfab_integration_10_c4ebde5781'
+  />  
+</div>
 
 Subsequently, add this URL (along with all others) to PlayFab to enable access to our Azure Functions from within PlayFab.
 
@@ -107,41 +191,27 @@ Subsequently, add this URL (along with all others) to PlayFab to enable access t
 1. #### Register Azure Functions
     Visit the [PlayFab developer dashboard](https://developer.playfab.com/), choose your title, and click on ***Automation***:
 
-    ![Automation Selection](docs-img/image-12.png)
+    <div align="center">
+      <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_11_5615028c17.png?updated_at=2024-10-17T09:36:46.329Z"
+        alt='playfab_integration_11_5615028c17'
+      />  
+    </div>
 
     Our functions are already registered. To do the same, click ***Register function*** and provide the function name along with its URL:
 
-    <img src="docs-img/image-13.png" width="500">
+    <div align="center">
+      <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_12_644b97fdaf.png?updated_at=2024-10-17T09:36:45.831Z"
+        alt='playfab_integration_12_644b97fdaf'
+      />  
+    </div>
 
     Repeat this for all deployed functions.
-
-2. #### Install Google Add-on
-    Navigate to ***Add-ons*** and choose ***Google***:
-
-    ![Google Add-on Selection](docs-img/image-15.png)
-
-    Then, visit the [Google Cloud APIs Credentials dashboard](https://console.cloud.google.com/apis/credentials) and click on the arrow icon next to your ***OAuth Web Application Client***:
-
-    ![OAuth Web Application Client](docs-img/image-16.png)
-
-    Copy both the ***Client ID*** and ***Client Secret***:
-
-    <img src="docs-img/image-17.png" width="500">
-
-    Return to the PlayFab dashboard, paste these details into the ***Google OAuth Client ID*** and ***Google OAuth Client Secret*** fields, and click ***Install Google***:
-
-    <img src="docs-img/image-18.png" width="500">
-
-3. #### Add PlayFab OAuth Redirect URL
-    For this, go to the [Google Cloud APIs Credentials dashboard](https://console.cloud.google.com/apis/credentials). Here, select your *Web application*:
-
-    ![Web Application Selection](docs-img/image-19.png)
-
-    In the ***Authorized redirect URIs*** section, add the URL below and click ***Save***:
-    ```
-    https://oauth.playfab.com/oauth2/google
-    ```
-    <img src="docs-img/image-20.png" width="500">
 
 ## Set up Azure Backend
 
@@ -149,39 +219,58 @@ Our Azure backend requires environment variables from both PlayFab and Openfort.
 
 1. #### Add Openfort Environment Variables
     - Navigate to the [Azure Portal](https://portal.azure.com/#home) and select your Function App.
-    - Under ***Configuration***, click ***New application setting***:
+    - Under ***Settings --> Environment variables***, click ***Add***:
       
-      <img src="docs-img/image-21.png" width="500">
+      <div align="center">
+      <img
+        width="50%"
+        height="50%"
+        src="https://strapi-oube.onrender.com/uploads/playfab_integration_13_c828ed6ed8.png?updated_at=2024-10-17T09:45:44.934Z"
+        alt='playfab_integration_13_c828ed6ed8'
+      />  
+    </div>
 
     - Provide the following details:
       + Name: `OF_API_KEY`
-      + Value: [Retrieve the **Secret key**](https://dashboard.openfort.xyz/apikeys)
+      + Value: [Retrieve the **API Secret key**](https://dashboard.openfort.xyz/developers/api-keys)
+    
+    - Add another application setting:
+      + Name: `OF_SHIELD_PUB_KEY`
+      + Value: [Retrieve the **Shield Publishable Key**](https://dashboard.openfort.xyz/developers/api-keys)
+    
+    - Add another application setting:
+      + Name: `OF_SHIELD_SECRET_KEY`
+      + Value: [Retrieve the **Shield Secret Key**](https://dashboard.openfort.xyz/developers/api-keys)
 
+    - Add another application setting:
+      + Name: `OF_SHIELD_ENCRYPTION_SHARE`
+      + Value: It's the **Shield Encryption Share Key** you saved before.
+    
     - Add another application setting:
       + Name: `OF_NFT_CONTRACT`
       + Value: [Retrieve the **Contract API ID**](https://dashboard.openfort.xyz/assets)
 
-    - And another:
+    - Add another application setting:
       + Name: `OF_SPONSOR_POLICY`
       + Value: [Retrieve the **Policy API ID**](https://dashboard.openfort.xyz/policies)
 
-    After adding these, your configuration panel should resemble the following. Click ***Save***:
-    
-    <img src="docs-img/image-23.png" width="500">
+    - And another application setting:
+      + Name: `OF_CHAIN_ID`
+      + Value: 11155111
 
 2. #### Add PlayFab Environment Variables
     - Visit the [PlayFab developer dashboard](https://developer.playfab.com/), select your title, and navigate to ***Settings wheel --> Title settings***:
 
-      <img src="docs-img/image-24.png" width="500">
+      <img src="docs-img/image-24.png" width="500"> //TODO
 
     - In the ***API Features*** section, copy your ***Title ID***:
 
-      <img src="docs-img/image-29.png" width="500">
+      <img src="docs-img/image-29.png" width="500"> //TODO
 
     - Under ***Secret Keys***, note down your ***Secret key***:
 
-      ![Secret Key](docs-img/image-26.png)
-
+      ![Secret Key](docs-img/image-26.png) //TODO
+ 
     - Return to the [Azure Portal](https://portal.azure.com/#home) and choose your Function App.
     - Under ***Configuration***, select ***New application setting*** and input:
       + Name: `PLAYFAB_TITLE_ID`
@@ -191,15 +280,23 @@ Our Azure backend requires environment variables from both PlayFab and Openfort.
       + Name: `PLAYFAB_SECRET_KEY`
       + Value: [Your Secret Key]
 
-    Your configuration panel should now look like the following. Confirm your changes by clicking ***Save***:
 
-    <img src="docs-img/image-27.png" width="500">
+  After adding all the environment variables, your configuration panel should look like the following. Confirm your changes by clicking ***Save***:
+
+  <div align="center">
+      <img
+        width="50%"
+        height="50%"
+        src=""
+        alt='' 
+      />  
+  </div> //TODO
 
 ## Set up Unity Client
 
 This Unity sample project is already equipped with:
 + [PlayFab Unity SDK](https://github.com/PlayFab/UnitySDK)
-+ [Google Play Games Unity Plugin (v11.01)](https://github.com/playgameservices/play-games-plugin-for-unity)
++ [Openfort SDK](https://github.com/openfort-xyz/openfort-csharp-unity)
 
 To begin, open [unity-client](https://github.com/openfort-xyz/playfab-unity-sample/tree/main/unity-client) with Unity:
 
@@ -209,14 +306,8 @@ To begin, open [unity-client](https://github.com/openfort-xyz/playfab-unity-samp
 
       <img src="docs-img/image-28.png" width="500">
 
-2. #### Configure Google Play Games SDK
-    - Even if you've set up the Google Play Games SDK following the [required tutorial](https://www.youtube.com/watch?v=dbLpA2YB6vU), ensure that you've correctly configured all fields by navigating to ***Window --> Google Play Games --> Setup --> Android setup***:
-
-      ![Google Play Games Config 1](docs-img/image-30.png)
-      
-      <img src="docs-img/image-31.png" width="500">
-
-    By doing this, when the game runs on Android, it will utilize Google Play Games for user authentication via PlayFab. Otherwise, the default PlayFab authentication will be used.
+2. #### Configure Openfort SDK
+    - //TODO Add API Keys to Openfort Controller
 
 ## Test in Editor
 
@@ -242,15 +333,9 @@ Additionally, by choosing your **Mumbai Account** and viewing ***ERC-721 Token T
 
 ![Transaction Confirm 2](docs-img/image-37.png)
 
-## Test on Android
-
-Upon building and running the game on an Android device, the registration/login process is automated via Google Play Games, resulting in a streamlined user experience.
-
 ## Conclusion
 
 Upon completing the above steps, your Unity game will be fully integrated with Openfort and PlayFab. Always remember to test every feature before deploying to guarantee a flawless player experience.
-
-For a deeper understanding of the underlying processes, check out the [tutorial video](https://youtu.be/PHNodBmbEfA). 
 
 ## Get support
 If you found a bug or want to suggest a new [feature/use case/sample], please [file an issue](../../issues).
